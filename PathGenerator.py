@@ -1,4 +1,5 @@
 #Artificial driver agent
+import time
 import math
 import path
 import DrawTrack
@@ -16,24 +17,20 @@ A_max = .5 # maximum acceleration rate in g's
 A_min = -1 # maximum deceleration rate in g's
 
 
-def Optimize():
+def Optimize(numIterations, debug = False):
 	# base for the optimizer
 
+	# Initialize
+	currIt = 0
 	centerline = path.Path(DrawTrack.GenerateTrack())
-
 	start = centerline.path[0] # we start in the middle of the track
 
+
 	new_path = path.Path()
+
 	for i in range(0,len(centerline)-2):
-		new_point = calc_probability_field(0,1,2)
-
-		while !check_curvature(path,i):
-			# generate a new point until you get one within the required angle bounds
-			new_point = calc_probability_field(0,1,2)
-
-
-
-
+		new_point = generate_Point(centerline,i)
+		new_path.append_point(new_point)
 
 	#print(centerline.curvature)
 
@@ -57,19 +54,35 @@ def calc_probability_field(k, k1, k2):
 	s = min(max(k2-k1/MaxK, -1), 1)
 
 	p = random() # Generate random number between 0 and 1
-	x = (-1 + math.sqrt(1-s*(2-s-4*p)))/s
+	ds = (-1 + math.sqrt(1-s*(2-s-4*p)))/s
 
 	# s = min(max(k2-k1/MaxK, -1),1)
 	# define probability as y = .5 + .5*s*x
 	# pick random number 0 <= p <=1 
-	# x value comes out as -1 + sqrt(1-s*(2-s-4*p)) all divided by s
-	return x
+	# ds value comes out as -1 + sqrt(1-s*(2-s-4*p)) all divided by s
 
-def check_curvature(path, ind):
-	# if angle between selected point and past 2 points is >45 degrees, return false, otherwise true
+	# Where ds is the distance from the centerline normal to the line
+	return ds
+
+def generate_Point(centerline, index):
+	# generates a new point using a weighted linear probability field
+	ds = calc_probability_field(centerline.curvature[index],centerline.curvature[index+1],centerline.curvature[index+2])
+
+	new_point = path_to_cartesian(centerline, ds)
+
+	while bad_curvature(path,index):
+		# generate a new point until you get one within the required angle bounds
+		ds = calc_probability_field(centerline.curvature[index],centerline.curvature[index+1],centerline.curvature[index+2])
+		new_point = path_to_cartesian(centerline, ds)
+
+	return new_point
+
+
+def bad_curvature(path, ind):
+	# if angle between selected point and past 2 points is >20 degrees, return false, otherwise true
 	angle = path.get_back_angle(ind)
-	if angle > 45.0:
-		return 0
+	if angle > 20.0:
+		return 1
 	else:
 		return 0
 
@@ -98,7 +111,21 @@ def check_curvature(path, ind):
 
 #Optimize()
 
-l = [(0,0),(1,0),(2,1)]
-test = path.Path(l)
-angle = test.get_back_angle(2)
-print(angle)
+if __name__ == '__main__':
+	debug = True
+
+	#Optimize(1, debug)
+
+	test1 = [(-2.5,1),(-9,7.5),(-2.5,14)]
+	test = [(0,1),(-1,1)]
+	P = path.Path(test)
+	P.curvature = [0, 0]
+	P.angle = [180, 180]
+	P.append_point(test1[0]) # angles added are all positive, needs fixing
+	P.append_point(test1[1])
+	P.append_point(test1[2])
+
+	print(P.path)
+	print(P.curvature)
+	print(P.angle)
+

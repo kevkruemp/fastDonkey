@@ -706,6 +706,52 @@ class JoystickCreatorController(JoystickController):
         '''
         pass
 
+class LogitechJoystickController(JoystickController):
+    '''
+    A Controller object that maps inputs to actions
+    '''
+
+    def __init__(self, *args, **kwargs):
+        super(LogitechJoystickController, self).__init__(*args, **kwargs)
+
+    def init_js(self):
+        '''
+        attempt to init joystick
+        '''
+        try:
+            self.js = LogitechJoystick(self.dev_fn)
+            self.js.init()
+        except FileNotFoundError:
+            print(self.dev_fn, "not found.")
+            self.js = None
+        return self.js is not None
+
+    def init_trigger_maps(self):
+        '''
+        init set of mapping from buttons to function calls
+        '''
+
+        self.button_down_trigger_map = {
+            'start': self.toggle_mode,
+            'RB': self.toggle_manual_recording,
+            'B': self.erase_last_N_records,
+            'Logitech': self.emergency_stop,
+            'Y': self.increase_max_throttle,
+            'X': self.decrease_max_throttle,
+            'LB': self.toggle_constant_throttle,
+        }
+
+        self.button_up_trigger_map = {
+
+        }
+
+        self.axis_trigger_map = {
+            'left_stick_horz': self.set_steering,
+            'right_stick_vert': self.set_throttle,
+            'R2_pressure': self.set_throttle,
+        }
+
+
 
 class PS3JoystickController(JoystickController):
     '''

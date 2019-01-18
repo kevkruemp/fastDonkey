@@ -152,6 +152,43 @@ class JoystickCreator(Joystick):
                 message_data = (button, button_state, axis, axis_val)
                 print(message_data)
 
+class LogitechJoystick(Joystick):
+    '''
+    An interface to a physical Logitech joystick available at /dev/input/js0
+    Contains mapping that work for Raspian Stretch drivers
+    '''
+
+    def __init__(self, *args, **kwargs):
+        super(LogitechJoystick, self).__init__(*args, **kwargs)
+
+        self.axis_names = {
+            0x00: 'left_stick_horz',
+            0x01: 'left_stick_vert',
+            0x03: 'right_stick_horz',
+            0x04: 'right_stick_vert',
+
+            0x02: 'L2_pressure',
+            0x05: 'R2_pressure',
+
+            0x10: 'dpad_leftright' # 1 is right, -1 is left
+            0x11: 'dpad_up_down' # 1 is down, -1 is up
+
+        }
+
+        self.button_names = {
+            0x13a: 'back',  # 8 314
+            0x13b: 'start',  # 9 315
+            0x13c: 'Logitech',  # a  316
+
+            0x130: 'A',
+            0x131: 'B',
+            0x133: 'X',
+            0x134: 'Y',
+
+            0x136: 'LB',
+            0x137: 'RB',
+        }
+
 class PS3JoystickOld(Joystick):
     '''
     An interface to a physical PS3 joystick available at /dev/input/js0

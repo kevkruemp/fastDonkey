@@ -170,8 +170,8 @@ class LogitechJoystick(Joystick):
             0x02: 'L2_pressure',
             0x05: 'R2_pressure',
 
-            0x10: 'dpad_leftright' # 1 is right, -1 is left
-            0x11: 'dpad_up_down' # 1 is down, -1 is up
+            0x10: 'dpad_leftright', # 1 is right, -1 is left
+            0x11: 'dpad_up_down', # 1 is down, -1 is up
 
         }
 

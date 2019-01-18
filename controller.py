@@ -141,7 +141,7 @@ class JoystickCreator(Joystick):
 
     def run(self):
         while True:
-            button, button_state, axis, axis_val = self.js.poll()
+            button, button_state, axis, axis_val = self.poll()
             if axis is not None or button is not None:
                 if button is None:
                     button = "0"

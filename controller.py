@@ -139,6 +139,43 @@ class JoystickCreator(Joystick):
 
         return button, button_state, axis, axis_val
 
+    def test_init(self):
+        try:
+            from fcntl import ioctl
+        except ModuleNotFoundError:
+            self.num_axes = 0
+            self.num_buttons = 0
+            print("no support for fnctl module. joystick not enabled.")
+            return
+
+        if not os.path.exists(self.dev_fn):
+            print(self.dev_fn, "is missing")
+            return
+
+        '''
+        call once to setup connection to device and map buttons
+        '''
+        # Open the joystick device.
+        print('Opening %s...' % self.dev_fn)
+        self.jsdev = open(self.dev_fn, 'rb')
+
+        # Get the device name.
+        buf = array.array('B', [0] * 64)
+        ioctl(self.jsdev, 0x80006a13 + (0x10000 * len(buf)), buf)  # JSIOCGNAME(len)
+        self.js_name = buf.tobytes().decode('utf-8')
+        print('Device name: %s' % self.js_name)
+
+        # Get number of axes and buttons.
+        buf = array.array('B', [0])
+        ioctl(self.jsdev, 0x80016a11, buf)  # JSIOCGAXES
+        self.num_axes = buf[0]
+        print(self.num_axes)
+
+        buf = array.array('B', [0])
+        ioctl(self.jsdev, 0x80016a12, buf)  # JSIOCGBUTTONS
+        self.num_buttons = buf[0]
+        print(self.num_buttons)
+
 
 class PS3JoystickOld(Joystick):
     '''

@@ -187,6 +187,9 @@ class LogitechJoystick(Joystick):
 
             0x136: 'LB',
             0x137: 'RB',
+
+            0x13d: 'Left_stick_press',
+            0x13e: 'right_stick_press',
         }
 
 class PS3JoystickOld(Joystick):
